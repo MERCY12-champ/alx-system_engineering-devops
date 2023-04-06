@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# This script configures an Nginx server to redirect /redirect_me to another page with a 301 redirect
+
+# Create the file for the website
+sudo mkdir -p /var/www/html/wawiramercy.tech
+
+# Create a custom page to redirect to
+echo "<html><head><meta http-equiv='refresh' content='0; url=http://www.example.com/'></head><body></body></html>" | sudo tee /var/www/html/wawiramercy.tech/index.html
+
+# Create a new Nginx configuration file for the website
+sudo tee /etc/nginx/sites-available/wawiramercy.tech <<EOF
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name wawiramercy.tech;
+
+    location /redirect_me {
+        return 301 http://www.example.com/;
+    }
+
+    root /var/www/html/wawiramercy.tech;
+    index index.html;
+}
+EOF
+
+# Create a symbolic link to enable the new configuration
+sudo ln -s /etc/nginx/sites-available/wawiramercy.tech /etc/nginx/sites-enabled/
+
+# Test the configuration and restart Nginx
+sudo nginx -t && sudo service nginx reload
+
