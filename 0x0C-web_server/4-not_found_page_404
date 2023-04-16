@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# A script that configures a custom 404 page on Nginx
+
+# Update package lists and install Nginx
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Create a custom 404 page
+sudo bash -c 'cat << EOF > /usr/share/nginx/html/404.html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>404 - Ceci n\'est pas une page</title>
+</head>
+<body>
+  <h1>404 - Ceci n\'est pas une page</h1>
+  <p>The page you are looking for could not be found.</p>
+</body>
+</html>
+EOF'
+
+# Configure Nginx to use the custom 404 page
+sudo bash -c 'cat << EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /usr/share/nginx/html;
+    index index.html index.htm;
+    server_name _;
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+}
+EOF'
+
+# Reload Nginx to apply changes
+sudo service nginx reload

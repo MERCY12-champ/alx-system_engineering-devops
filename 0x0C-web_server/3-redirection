@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# A script that configures an Nginx server to redirect /redirect_me to a different URL
+
+# Update package list and install nginx
+sudo apt-get -y update
+sudo apt-get -y install nginx
+
+# Create index.html file with "Hello World!"
+sudo touch /var/www/html/index.html
+echo i"Hello World!" > /var/www/html/index.html
+
+# Create Nginx configuration file for redirection
+printf %s "
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-ubuntu.html;
+    location /redirect_me {
+        return 301 https://www.wawiramercy.tech;
+    }
+}"| sudo tee /etc/nginx/sites-available/default
+
+# Reload Nginx configuration
+sudo service nginx reload
