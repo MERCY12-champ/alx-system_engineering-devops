@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# This script automates the fix for the Apache 500 error
+
+# Install Apache package
+package { 'apache2':
+  ensure => 'installed',
+}
+
+# Configure Apache virtual host
+file { '/etc/apache2/sites-available/your_site.conf':
+  ensure  => 'file',
+  content => '
+    <VirtualHost *:80>
+      ServerName yoursite.com
+      DocumentRoot /var/www/your_site
+      <Directory /var/www/your_site>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+      </Directory>
+    </VirtualHost>
+  ',
+  notify  => Service['apache2'],
+}
+
+# Enable the virtual host
+file { '/etc/apache2/sites-enabled/your_site.conf':
+  ensure  => 'link',
+  target  => '/etc/apache2/sites-available/your_site.conf',
+  require => File['/etc/apache2/sites-available/your_site.conf'],
+  notify  => Service['apache2'],
+}
+
+# Ensure Apache service is running and enabled
+service { 'apache2':
+  ensure  => 'running',
+  enable  => true,
+  require => Package['apache2'],
+}
