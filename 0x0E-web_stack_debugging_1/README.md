@@ -1,1 +1,1 @@
-This script automates the fix for the Apache 500 error
+This script fixes issue with nginx
